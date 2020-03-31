@@ -1,7 +1,7 @@
 from __future__ import print_function
 import random
-import sys
 import time
+import multiprocessing
 from contextlib import contextmanager
 from multiprocessing import Manager, Pool
 
@@ -137,28 +137,16 @@ def parallel_merge_sort(array, process_count):
     return timer, final_sorted_list
 
 
-def get_command_line_parameters():
-    # Note: see argparse for better argument handling and interface.
-    if len(sys.argv) > 1:
-        # Check if the desired number of concurrent processes
-        # has been given as a command-line parameter.
-        total_processes = int(sys.argv[1])
-        if total_processes > 1:
-            # Restrict process count to even numbers
-            if total_processes % 2 != 0:
-                print('Process count should be an even number.')
-                sys.exit(1)
-        print('Using {} cores'.format(total_processes))
-    else:
-        total_processes = 1
-
-    return {'process_count': total_processes}
+def get_process_num():
+    try:
+        return multiprocessing.cpu_count()
+    except (ImportError, NotImplementedError):
+        pass
 
 
 if __name__ == '__main__':
-    parameters = get_command_line_parameters()
 
-    process_count = parameters['process_count']
+    process_count = get_process_num()
 
     main_timer = Timer('single_core', 'list_generation')
     main_timer.start_for('list_generation')
